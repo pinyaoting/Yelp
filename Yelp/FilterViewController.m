@@ -66,6 +66,11 @@
     return cell;
 }
 
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return UITableViewAutomaticDimension;
+}
+
 #pragma mark - Switch cell delegate methods
 
 - (void)switchCell:(SwitchCell *)cell didUpdateValue:(BOOL)value {
