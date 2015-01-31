@@ -17,11 +17,13 @@ NSString * const kYelpConsumerSecret = @"33QCvh5bIF5jIHR5klQr7RtBDhQ";
 NSString * const kYelpToken = @"uRcRswHFYa1VkDrGV6LAW2F8clGh5JHV";
 NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
 
-@interface MainViewController () <UITableViewDataSource, UITableViewDelegate, FilterViewControllerDelegate>
+@interface MainViewController () <UITableViewDataSource, UITableViewDelegate, FilterViewControllerDelegate, UISearchBarDelegate>
 
 @property (nonatomic, strong) YelpClient *client;
 @property (nonatomic, strong) NSArray *businesses;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (strong, nonatomic) IBOutlet UISearchBar *searchBar;
+
 
 - (void)fetchBusinessesWithQuery:(NSString *)query params:(NSDictionary *)params;
 
@@ -52,15 +54,26 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
     
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     
-    self.title = @"Yelp";
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Filter" style:UIBarButtonItemStylePlain target:self action:@selector(onFilterButton)];
+    
+    self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 63, 320, 44)];
+    self.searchBar.delegate = self;
+    self.navigationItem.titleView = self.searchBar;
+    
 }
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Searchbar view methods
+
+-(void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
+    [self fetchBusinessesWithQuery:searchBar.text params:nil];
 }
 
 #pragma mark - Table view methods
@@ -102,7 +115,7 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
 }
 
 - (void)fetchBusinessesWithQuery:(NSString *)query params:(NSDictionary *)params {
-    [self.client searchWithTerm:@"Thai" params:params success:^(AFHTTPRequestOperation *operation, id response) {
+    [self.client searchWithTerm:query params:params success:^(AFHTTPRequestOperation *operation, id response) {
         
         NSArray *businessesDictionary = response[@"businesses"];
         

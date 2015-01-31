@@ -23,6 +23,7 @@
 		42FD6C6E18DC286B000BF2B9 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 42FD6C6C18DC286B000BF2B9 /* InfoPlist.strings */; };
 		42FD6C7018DC286B000BF2B9 /* YelpTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 42FD6C6F18DC286B000BF2B9 /* YelpTests.m */; };
 		63E591F41F684901AF8C1C19 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DEC6D18C14F46F8AF2EA320 /* libPods.a */; };
+		67B143CD1A7D807E0017EE54 /* red_bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 67B143CC1A7D807E0017EE54 /* red_bg.png */; };
 		67D0BD6C1A7A0C38001A956A /* FilterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D0BD6A1A7A0C38001A956A /* FilterViewController.m */; };
 		67D0BD6D1A7A0C38001A956A /* FilterViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 67D0BD6B1A7A0C38001A956A /* FilterViewController.xib */; };
 		67D0BD711A7A14D7001A956A /* SwitchCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D0BD6F1A7A14D7001A956A /* SwitchCell.m */; };
@@ -65,6 +66,7 @@
 		42FD6C6B18DC286B000BF2B9 /* YelpTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "YelpTests-Info.plist"; sourceTree = "<group>"; };
 		42FD6C6D18DC286B000BF2B9 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		42FD6C6F18DC286B000BF2B9 /* YelpTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YelpTests.m; sourceTree = "<group>"; };
+		67B143CC1A7D807E0017EE54 /* red_bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = red_bg.png; sourceTree = "<group>"; };
 		67D0BD691A7A0C38001A956A /* FilterViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilterViewController.h; sourceTree = "<group>"; };
 		67D0BD6A1A7A0C38001A956A /* FilterViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilterViewController.m; sourceTree = "<group>"; };
 		67D0BD6B1A7A0C38001A956A /* FilterViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FilterViewController.xib; sourceTree = "<group>"; };
@@ -162,6 +164,7 @@
 		42FD6C5018DC286B000BF2B9 /* Yelp */ = {
 			isa = PBXGroup;
 			children = (
+				67B143CA1A7D80610017EE54 /* Assets */,
 				67E39BC81A79CCD10050CC3A /* Models */,
 				420474F318DC297600E88E07 /* API */,
 				67E39BCC1A79D35F0050CC3A /* Views */,
@@ -210,6 +213,22 @@
 				B4909FEDA3DEC44FAF56766F /* Pods.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		67B143CA1A7D80610017EE54 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				67B143CB1A7D806A0017EE54 /* Images */,
+			);
+			name = Assets;
+			sourceTree = "<group>";
+		};
+		67B143CB1A7D806A0017EE54 /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				67B143CC1A7D807E0017EE54 /* red_bg.png */,
+			);
+			name = Images;
 			sourceTree = "<group>";
 		};
 		67E39BC81A79CCD10050CC3A /* Models */ = {
@@ -311,6 +330,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				67B143CD1A7D807E0017EE54 /* red_bg.png in Resources */,
 				67D0BD6D1A7A0C38001A956A /* FilterViewController.xib in Resources */,
 				42FD6C5518DC286B000BF2B9 /* InfoPlist.strings in Resources */,
 				67E39BD11A79D3A10050CC3A /* BusinessCell.xib in Resources */,
