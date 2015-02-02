@@ -20,12 +20,17 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
 @interface MainViewController () <UITableViewDataSource, UITableViewDelegate, FilterViewControllerDelegate, UISearchBarDelegate>
 
 @property (nonatomic, strong) YelpClient *client;
-@property (nonatomic, strong) NSArray *businesses;
+@property (nonatomic, strong) NSMutableArray *businesses;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (strong, nonatomic) IBOutlet UISearchBar *searchBar;
 
+@property (nonatomic, strong) NSString *searchTerm;
+@property (nonatomic, strong) NSMutableDictionary *filters;
+@property (nonatomic, assign) NSInteger offset;
 
-- (void)fetchBusinessesWithQuery:(NSString *)query params:(NSDictionary *)params;
+@property (nonatomic, assign) BOOL shouldPause;
+
+- (void)fetchBusinessesWithQueryIncremental:(BOOL)inc;
 
 @end
 
@@ -38,7 +43,11 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
         // You can register for Yelp API keys here: http://www.yelp.com/developers/manage_api_keys
         self.client = [[YelpClient alloc] initWithConsumerKey:kYelpConsumerKey consumerSecret:kYelpConsumerSecret accessToken:kYelpToken accessSecret:kYelpTokenSecret];
         
-        [self fetchBusinessesWithQuery:@"Restaurants" params:nil];
+        self.searchTerm = @"Restaurants";
+        self.filters = nil;
+        self.shouldPause = NO;
+        self.businesses = [[NSMutableArray alloc] initWithCapacity:20000];
+        [self fetchBusinessesWithQueryIncremental:NO];
     }
     return self;
 }
@@ -74,7 +83,9 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
 #pragma mark - Searchbar view methods
 
 -(void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
-    [self fetchBusinessesWithQuery:searchBar.text params:nil];
+    self.searchTerm = searchBar.text;
+    self.filters = nil;
+    [self fetchBusinessesWithQueryIncremental:NO];
 }
 
 #pragma mark - Table view methods
@@ -94,11 +105,26 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
     return UITableViewAutomaticDimension;
 }
 
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    CGFloat actualPosition = scrollView.contentOffset.y;
+    CGFloat contentHeight = scrollView.contentSize.height - 500;
+    if (actualPosition >= contentHeight) {
+        if (self.shouldPause) {
+            return;
+        }
+        self.shouldPause = YES;
+        [self fetchBusinessesWithQueryIncremental:YES];
+    }
+}
+
+
 #pragma mark - Filter delegate methods
 
 -(void)filterViewController:(FilterViewController *)filterViewController didChangeFilters:(NSDictionary *)filters {
+
+    self.filters = [NSMutableDictionary dictionaryWithDictionary:filters];
+    [self fetchBusinessesWithQueryIncremental:NO];
     
-    [self fetchBusinessesWithQuery:@"Restaurants" params:filters];
     // fire a new network event.
     NSLog(@"fire new network event: %@", filters);
 }
@@ -115,15 +141,26 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
     [self presentViewController:nvc animated:YES completion:nil];
 }
 
-- (void)fetchBusinessesWithQuery:(NSString *)query params:(NSDictionary *)params {
-    [self.client searchWithTerm:query params:params success:^(AFHTTPRequestOperation *operation, id response) {
-        
+- (void)fetchBusinessesWithQueryIncremental:(BOOL)inc {
+    if (inc) {
+        if (!self.offset) {
+            self.offset = self.businesses.count;
+        } else {
+            self.offset += 20;
+        }
+        if (!self.filters) {
+            self.filters = [NSMutableDictionary dictionary];
+        }
+        [self.filters setObject:@(self.offset) forKey:@"offset"];
+    }
+    
+    [self.client searchWithTerm:self.searchTerm params:self.filters success:^(AFHTTPRequestOperation *operation, id response) {
         NSArray *businessesDictionary = response[@"businesses"];
-        
-        self.businesses = [Business businessesWithDictionaries:businessesDictionary];
-        
+
+        NSArray *businesses = [Business businessesWithDictionaries:businessesDictionary];
+        [self.businesses addObjectsFromArray:businesses];
         [self.tableView reloadData];
-        
+        self.shouldPause = NO;
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"error: %@", [error description]);
     }];

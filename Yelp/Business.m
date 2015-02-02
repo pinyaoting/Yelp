@@ -23,10 +23,26 @@
         
         self.name = dictionary[@"name"];
         self.imageUrl = dictionary[@"image_url"];
-        NSString *street = [dictionary valueForKeyPath:@"location.address"][0];
-        NSString *neighborhood = [dictionary valueForKeyPath:@"location.neighborhoods"][0];
-        self.address = [NSString stringWithFormat:@"%@, %@", street, neighborhood];
-        
+        NSArray *address = [dictionary valueForKeyPath:@"location.address"];
+        NSArray *neighborhoods = [dictionary valueForKeyPath:@"location.neighborhoods"];
+        if (address.count == 0 && neighborhoods.count == 0) {
+            NSLog(@"address: %@", address);
+            self.address = @"";
+        } else {
+            NSString *street = @"", *neighborhood = @"";
+            if (address.count > 0) {
+                street = [dictionary valueForKeyPath:@"location.address"][0];
+            }
+            if (neighborhoods.count > 0) {
+                neighborhood = [dictionary valueForKeyPath:@"location.neighborhoods"][0];
+            }
+            if (address.count > 0 && neighborhoods.count > 0) {
+                self.address = [NSString stringWithFormat:@"%@, %@", street, neighborhood];
+            } else {
+                self.address = [NSString stringWithFormat:@"%@", address.count > 0 ? street : neighborhood];
+                NSLog(@"address is: %@", self.address);
+            }
+        }
         self.numReviews = [dictionary[@"review_count"] integerValue];
         self.ratingImageUrl = dictionary[@"rating_img_url"];
         float milesPerMeter = 0.000621371;
