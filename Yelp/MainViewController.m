@@ -11,6 +11,7 @@
 #import "Business.h"
 #import "BusinessCell.h"
 #import "FilterViewController.h"
+#import "MapViewController.h"
 
 NSString * const kYelpConsumerKey = @"vxKwwcR_NMQ7WaEiQBK_CA";
 NSString * const kYelpConsumerSecret = @"33QCvh5bIF5jIHR5klQr7RtBDhQ";
@@ -65,12 +66,13 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
     
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
     
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Filter" style:UIBarButtonItemStylePlain target:self action:@selector(onFilterButton)];
-    
     self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 63, 320, 44)];
     self.searchBar.placeholder = @"Search";
     self.searchBar.delegate = self;
     self.navigationItem.titleView = self.searchBar;
+    
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Filter" style:UIBarButtonItemStylePlain target:self action:@selector(onFilterButton)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Map" style:UIBarButtonItemStylePlain target:self action:@selector(onMapButton)];
     
 }
 
@@ -141,6 +143,15 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
     [self presentViewController:nvc animated:YES completion:nil];
 }
 
+- (void)onMapButton {
+    MapViewController *vc = [[MapViewController alloc] init];
+    
+    UINavigationController *nvc = [[UINavigationController alloc] initWithRootViewController:vc];
+    
+    [self presentViewController:nvc animated:YES completion:nil];
+}
+
+
 - (void)fetchBusinessesWithQueryIncremental:(BOOL)inc {
     if (inc) {
         if (!self.offset) {
@@ -154,11 +165,15 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
         [self.filters setObject:@(self.offset) forKey:@"offset"];
     }
     
+    
     [self.client searchWithTerm:self.searchTerm params:self.filters success:^(AFHTTPRequestOperation *operation, id response) {
         NSArray *businessesDictionary = response[@"businesses"];
-
         NSArray *businesses = [Business businessesWithDictionaries:businessesDictionary];
-        [self.businesses addObjectsFromArray:businesses];
+        if (inc) {
+            [self.businesses addObjectsFromArray:businesses];
+        } else {
+            self.businesses = [NSMutableArray arrayWithArray:businesses];
+        }
         [self.tableView reloadData];
         self.shouldPause = NO;
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {

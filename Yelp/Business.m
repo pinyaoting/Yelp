@@ -7,8 +7,11 @@
 //
 
 #import "Business.h"
+#import <AddressBook/AddressBook.h>
 
 @implementation Business
+
+#define MILES_PER_METER 0.000621371
 
 - (id)initWithDictionary:(NSDictionary *)dictionary {
     self = [super init];
@@ -26,7 +29,6 @@
         NSArray *address = [dictionary valueForKeyPath:@"location.address"];
         NSArray *neighborhoods = [dictionary valueForKeyPath:@"location.neighborhoods"];
         if (address.count == 0 && neighborhoods.count == 0) {
-            NSLog(@"address: %@", address);
             self.address = @"";
         } else {
             NSString *street = @"", *neighborhood = @"";
@@ -40,13 +42,13 @@
                 self.address = [NSString stringWithFormat:@"%@, %@", street, neighborhood];
             } else {
                 self.address = [NSString stringWithFormat:@"%@", address.count > 0 ? street : neighborhood];
-                NSLog(@"address is: %@", self.address);
             }
         }
         self.numReviews = [dictionary[@"review_count"] integerValue];
         self.ratingImageUrl = dictionary[@"rating_img_url"];
-        float milesPerMeter = 0.000621371;
-        self.distance = [dictionary[@"distance"] integerValue] * milesPerMeter;
+        self.distance = [dictionary[@"distance"] integerValue] * MILES_PER_METER;
+        NSDictionary *coordinate = [dictionary valueForKeyPath:@"location.coordinate"];
+        self.coordinate = CLLocationCoordinate2DMake([coordinate[@"latitude"] doubleValue], [coordinate[@"longtitude"] doubleValue]);
     }
     
     return self;
@@ -61,6 +63,26 @@
     }
     
     return businesses;
+}
+
+- (NSString *)title {
+    return self.name;
+}
+
+- (NSString *)subtitle {
+    return self.address;
+}
+
+- (MKMapItem *)mapItem {
+    NSDictionary *addressDict = @{(NSString*)kABPersonAddressStreetKey : self.address};
+    MKPlacemark *placemark = [[MKPlacemark alloc]
+                              initWithCoordinate:self.coordinate
+                              addressDictionary:addressDict];
+    
+    MKMapItem *mapItem = [[MKMapItem alloc] initWithPlacemark:placemark];
+    mapItem.name = self.name;
+    
+    return mapItem;
 }
 
 @end
