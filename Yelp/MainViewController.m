@@ -59,6 +59,7 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Filter" style:UIBarButtonItemStylePlain target:self action:@selector(onFilterButton)];
     
     self.searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(0, 63, 320, 44)];
+    self.searchBar.placeholder = @"Search";
     self.searchBar.delegate = self;
     self.navigationItem.titleView = self.searchBar;
     

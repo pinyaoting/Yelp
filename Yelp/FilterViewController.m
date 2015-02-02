@@ -8,15 +8,23 @@
 
 #import "FilterViewController.h"
 #import "SwitchCell.h"
+#import "PickerCell.h"
 
-@interface FilterViewController () <UITableViewDataSource, UITableViewDelegate, SwitchCellDelegate>
+@interface FilterViewController () <UITableViewDataSource, UITableViewDelegate, SwitchCellDelegate, UIPickerViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
-@property (nonatomic, readonly) NSDictionary *filters;
-@property (nonatomic, strong) NSArray *categories;
-@property (nonatomic, strong) NSMutableSet *selectedCategories;
 
-- (void)initCategories;
+@property (nonatomic, readonly) NSDictionary *filters;
+
+@property (nonatomic, strong) NSDictionary *pickers;
+
+@property (nonatomic, strong) NSMutableDictionary *constraints;
+@property (nonatomic, strong) NSArray *constraintsSectionTitles;
+@property (nonatomic, strong) NSMutableDictionary *selectedConstraints;
+
+@property (nonatomic, strong) NSArray *options;
+
+- (void)initFilters;
 
 @end
 
@@ -26,8 +34,8 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     
     if (self) {
-        self.selectedCategories = [NSMutableSet set];
-        [self initCategories];
+        self.selectedConstraints = [NSMutableDictionary dictionary];
+        [self initFilters];
     }
     
     return self;
@@ -38,12 +46,13 @@
 
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:self action:@selector(onCancelButton)];
     
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Apply" style:UIBarButtonItemStylePlain target:self action:@selector(onApplyButton)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Search" style:UIBarButtonItemStylePlain target:self action:@selector(onSearchButton)];
     
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     
     [self.tableView registerNib:[UINib nibWithNibName:@"SwitchCell" bundle:nil] forCellReuseIdentifier:@"SwitchCell"];
+    [self.tableView registerNib:[UINib nibWithNibName:@"PickerCell" bundle:nil] forCellReuseIdentifier:@"PickerCell"];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -54,16 +63,54 @@
 #pragma mark - Table view methods
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.categories.count;
+    NSArray *options = [self getOptionsAtSection:section];
+    NSString *type = [self getTypeAtSection:section];
+    
+    if ([type isEqualToString:@"picker"]) {
+        BOOL expand = [self getToggleAtSection:section];
+        if (!expand) {
+            return 1;
+        }
+    }
+    
+    return options.count;
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    SwitchCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"SwitchCell"];
-    cell.titleLabel.text = self.categories[indexPath.row][@"name"];
-    cell.on = [self.selectedCategories containsObject:self.categories[indexPath.row]];
-    cell.delegate = self;
+    NSString *type = [self getTypeAtSection:indexPath.section];
     
-    return cell;
+    if ([type isEqualToString:@"switch"]) {
+        NSDictionary *constraint = [self getOptionAtIndexPath:indexPath];
+        NSString *sectionTitle = [self.constraintsSectionTitles objectAtIndex:indexPath.section];
+        SwitchCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"SwitchCell"];
+        cell.titleLabel.text = constraint[@"name"];
+        cell.on = [(NSMutableSet*)[self.selectedConstraints objectForKey:sectionTitle] containsObject:constraint];
+        cell.delegate = self;
+        return cell;
+    } else {
+        BOOL expand = [self getToggleAtSection:indexPath.section];
+
+        NSInteger selected = [self getSelectedAtSection:indexPath.section];
+        PickerCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"PickerCell"];
+        if (!expand) {
+            cell.optionLabel.text = [self getOptionAtIndexPath:indexPath withIndex:selected][@"name"];
+            cell.moreLabel.hidden = NO;
+        } else {
+            cell.optionLabel.text = [self getOptionAtIndexPath:indexPath withIndex:indexPath.row][@"name"];
+            cell.moreLabel.hidden = YES;
+        }
+        return cell;
+    }
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSString *type = [self getTypeAtSection:indexPath.section];
+    
+    if ([type isEqualToString:@"picker"]) {
+        [self toggleExpandAtSection:indexPath.section];
+        [self setSelected:indexPath.row AtSection:indexPath.section];
+        [self.tableView reloadSections: [NSIndexSet indexSetWithIndex:indexPath.section]  withRowAnimation:UITableViewRowAnimationFade];
+    }
 }
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -71,33 +118,116 @@
     return UITableViewAutomaticDimension;
 }
 
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return self.constraintsSectionTitles.count;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    return [self.constraintsSectionTitles objectAtIndex:section];
+}
+
 #pragma mark - Switch cell delegate methods
 
 - (void)switchCell:(SwitchCell *)cell didUpdateValue:(BOOL)value {
     NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
-    
+    NSString *sectionTitle = [self.constraintsSectionTitles objectAtIndex:indexPath.section];
+    NSDictionary *constraint = [self getOptionAtIndexPath:indexPath];
+    NSMutableSet *constraintSet = self.selectedConstraints[sectionTitle];
     if (value) {
-        [self.selectedCategories addObject:self.categories[indexPath.row]];
+        if (constraintSet) {
+            [constraintSet addObject:constraint];
+        } else {
+            self.selectedConstraints[sectionTitle] = [NSMutableSet setWithObject:constraint];
+        }
     } else {
-        [self.selectedCategories removeObject:self.categories[indexPath.row]];
+        [self.selectedConstraints[sectionTitle] removeObject:constraint];
     }
-    
 }
-
 
 #pragma mark - Private methods
 
+- (NSMutableDictionary *)getConstraintsAtSection:(NSInteger)section {
+    NSString *sectionTitle = [self.constraintsSectionTitles objectAtIndex:section];
+    return [self.constraints objectForKey:sectionTitle];
+}
+
+- (NSDictionary *)getOptionAtIndexPath:(NSIndexPath *)indexPath withIndex:(NSInteger)index {
+    NSDictionary *constraints = [self getConstraintsAtSection:indexPath.section];
+    NSArray *options = [constraints objectForKey:@"options"];
+    return options[index];
+}
+
+- (NSDictionary *)getOptionAtIndexPath:(NSIndexPath *)indexPath {
+    return [self getOptionAtIndexPath:indexPath withIndex:indexPath.row];
+}
+
+- (NSArray *)getOptionsAtSection:(NSInteger)section {
+    NSDictionary *constraints = [self getConstraintsAtSection:section];
+    return [constraints objectForKey:@"options"];
+}
+
+- (NSString *)getTypeAtSection:(NSInteger)section {
+    NSDictionary *constraints = [self getConstraintsAtSection:section];
+    return [constraints objectForKey:@"type"];
+}
+
+- (NSInteger)getSelectedAtSection:(NSInteger)section {
+    NSDictionary *constraints = [self getConstraintsAtSection:section];
+    return [[constraints objectForKey:@"selected"] integerValue];
+}
+
+- (NSString *)getRulenameAtSection:(NSInteger)section {
+    NSDictionary *constraints = [self getConstraintsAtSection:section];
+    return [constraints objectForKey:@"rulename"];
+}
+
+- (void)setSelected:(NSInteger)index AtSection:(NSInteger)section {
+    NSMutableDictionary *constraints = [self getConstraintsAtSection:section];
+    [constraints setObject:@(index) forKey:@"selected"];
+}
+
+- (BOOL)getToggleAtSection:(NSInteger)section {
+    NSDictionary *constraints = [self getConstraintsAtSection:section];
+    
+    return [[constraints objectForKey:@"expand"] boolValue];
+}
+
+- (void)toggleExpandAtSection:(NSInteger)section {
+    NSMutableDictionary *constraints = [self getConstraintsAtSection:section];
+    BOOL toggle = [[constraints objectForKey:@"expand"] boolValue];
+    
+    [constraints setObject:@(!toggle) forKey:@"expand"];
+}
+
 - (NSDictionary *)filters {
     NSMutableDictionary *filters = [NSMutableDictionary dictionary];
+    NSInteger i, selected;
+    NSString *type, *rulename, *sectionTitle;
+    NSArray *options;
+    NSDictionary *targetOption;
     
-    if (self.selectedCategories.count > 0) {
-        NSMutableArray *names = [NSMutableArray array];
-        for (NSDictionary *category in self.selectedCategories) {
-            [names addObject:category[@"code"]];
+    for (i = 0; i < self.constraintsSectionTitles.count; i++) {
+        rulename = [self getRulenameAtSection: i];
+        type = [self getTypeAtSection:i];
+        if ([type isEqualToString:@"switch"]) {
+            sectionTitle = self.constraintsSectionTitles[i];
+            if (self.selectedConstraints.count > 0 && self.selectedConstraints[sectionTitle]) {
+                NSMutableArray *names = [NSMutableArray array];
+                for (NSDictionary *category in self.selectedConstraints[sectionTitle]) {
+                    [names addObject:category[@"code"]];
+                }
+                NSString *categoryFilter = [names componentsJoinedByString:@","];
+                [filters setObject:categoryFilter forKey:rulename];
+            }
+            continue;
         }
-        NSString *categoryFilter = [names componentsJoinedByString:@","];
-        [filters setObject:categoryFilter forKey:@"category_filter"];
+        selected = [self getSelectedAtSection: i];
+        options = [self getOptionsAtSection: i];
+        targetOption = options[selected];
+        [filters setObject:targetOption[@"code"] forKey:rulename];
     }
+
     
     return filters;
 }
@@ -106,177 +236,64 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (void)onApplyButton {
+- (void)onSearchButton {
     [self.delegate filterViewController:self didChangeFilters:self.filters];
     [self dismissViewControllerAnimated:YES completion:nil];    
 }
 
-- (void)initCategories {
-    self.categories =
-    @[@{@"name":@"Afghan", @"code": @"afghani"},
-      @{@"name":@"African", @"code": @"african"},
-      @{@"name":@"American, New", @"code": @"newamerican"},
-      @{@"name":@"American, Traditional", @"code": @"tradamerican"},
-      @{@"name":@"Arabian", @"code": @"arabian"},
-      @{@"name":@"Argentine", @"code": @"argentine"},
-      @{@"name":@"Armenian", @"code": @"armenian"},
-      @{@"name":@"Asian Fusion", @"code": @"asianfusion"},
-      @{@"name":@"Asturian", @"code": @"asturian"},
-      @{@"name":@"Australian", @"code": @"australian"},
-      @{@"name":@"Austrian", @"code": @"austrian"},
-      @{@"name":@"Baguettes", @"code": @"baguettes"},
-      @{@"name":@"Bangladeshi", @"code": @"bangladeshi"},
-      @{@"name":@"Barbeque", @"code": @"bbq"},
-      @{@"name":@"Basque", @"code": @"basque"},
-      @{@"name":@"Bavarian", @"code": @"bavarian"},
-      @{@"name":@"Beer Garden", @"code": @"beergarden"},
-      @{@"name":@"Beer Hall", @"code": @"beerhall"},
-      @{@"name":@"Beisl", @"code": @"beisl"},
-      @{@"name":@"Belgian", @"code": @"belgian"},
-      @{@"name":@"Bistros", @"code": @"bistros"},
-      @{@"name":@"Black Sea", @"code": @"blacksea"},
-      @{@"name":@"Brasseries", @"code": @"brasseries"},
-      @{@"name":@"Brazilian", @"code": @"brazilian"},
-      @{@"name":@"Breakfast & Brunch", @"code": @"breakfast_brunch"},
-      @{@"name":@"British", @"code": @"british"},
-      @{@"name":@"Buffets", @"code": @"buffets"},
-      @{@"name":@"Bulgarian", @"code": @"bulgarian"},
-      @{@"name":@"Burgers", @"code": @"burgers"},
-      @{@"name":@"Burmese", @"code": @"burmese"},
-      @{@"name":@"Cafes", @"code": @"cafes"},
-      @{@"name":@"Cafeteria", @"code": @"cafeteria"},
-      @{@"name":@"Cajun/Creole", @"code": @"cajun"},
-      @{@"name":@"Cambodian", @"code": @"cambodian"},
-      @{@"name":@"Canadian", @"code": @"New) (newcanadian"},
-      @{@"name":@"Canteen", @"code": @"canteen"},
-      @{@"name":@"Caribbean", @"code": @"caribbean"},
-      @{@"name":@"Comfort Food", @"code": @"comfortfood"},
-      @{@"name":@"Corsican", @"code": @"corsican"},
-      @{@"name":@"Creperies", @"code": @"creperies"},
-      @{@"name":@"Cuban", @"code": @"cuban"},
-      @{@"name":@"Curry Sausage", @"code": @"currysausage"},
-      @{@"name":@"Cypriot", @"code": @"cypriot"},
-      @{@"name":@"Czech", @"code": @"czech"},
-      @{@"name":@"Czech/Slovakian", @"code": @"czechslovakian"},
-      @{@"name":@"Danish", @"code": @"danish"},
-      @{@"name":@"Delis", @"code": @"delis"},
-      @{@"name":@"Diners", @"code": @"diners"},
-      @{@"name":@"Dumplings", @"code": @"dumplings"},
-      @{@"name":@"Eastern European", @"code": @"eastern_european"},
-      @{@"name":@"Ethiopian", @"code": @"ethiopian"},
-      @{@"name":@"Fast Food", @"code": @"hotdogs"},
-      @{@"name":@"Filipino", @"code": @"filipino"},
-      @{@"name":@"Fischbroetchen", @"code": @"fischbroetchen"},
-      @{@"name":@"Fish & Chips", @"code": @"fishnchips"},
-      @{@"name":@"Fondue", @"code": @"fondue"},
-      @{@"name":@"Food Court", @"code": @"food_court"},
-      @{@"name":@"Food Stands", @"code": @"foodstands"},
-      @{@"name":@"French", @"code": @"french"},
-      @{@"name":@"French Southwest", @"code": @"sud_ouest"},
-      @{@"name":@"Galician", @"code": @"galician"},
-      @{@"name":@"Gastropubs", @"code": @"gastropubs"},
-      @{@"name":@"Georgian", @"code": @"georgian"},
-      @{@"name":@"German", @"code": @"german"},
-      @{@"name":@"Giblets", @"code": @"giblets"},
-      @{@"name":@"Gluten-Free", @"code": @"gluten_free"},
-      @{@"name":@"Greek", @"code": @"greek"},
-      @{@"name":@"Halal", @"code": @"halal"},
-      @{@"name":@"Hawaiian", @"code": @"hawaiian"},
-      @{@"name":@"Heuriger", @"code": @"heuriger"},
-      @{@"name":@"Himalayan/Nepalese", @"code": @"himalayan"},
-      @{@"name":@"Hong Kong Style Cafe", @"code": @"hkcafe"},
-      @{@"name":@"Hot Dogs", @"code": @"hotdog"},
-      @{@"name":@"Hot Pot", @"code": @"hotpot"},
-      @{@"name":@"Hungarian", @"code": @"hungarian"},
-      @{@"name":@"Iberian", @"code": @"iberian"},
-      @{@"name":@"Indian", @"code": @"indpak"},
-      @{@"name":@"Indonesian", @"code": @"indonesian"},
-      @{@"name":@"International", @"code": @"international"},
-      @{@"name":@"Irish", @"code": @"irish"},
-      @{@"name":@"Island Pub", @"code": @"island_pub"},
-      @{@"name":@"Israeli", @"code": @"israeli"},
-      @{@"name":@"Italian", @"code": @"italian"},
-      @{@"name":@"Japanese", @"code": @"japanese"},
-      @{@"name":@"Jewish", @"code": @"jewish"},
-      @{@"name":@"Kebab", @"code": @"kebab"},
-      @{@"name":@"Korean", @"code": @"korean"},
-      @{@"name":@"Kosher", @"code": @"kosher"},
-      @{@"name":@"Kurdish", @"code": @"kurdish"},
-      @{@"name":@"Laos", @"code": @"laos"},
-      @{@"name":@"Laotian", @"code": @"laotian"},
-      @{@"name":@"Latin American", @"code": @"latin"},
-      @{@"name":@"Live/Raw Food", @"code": @"raw_food"},
-      @{@"name":@"Lyonnais", @"code": @"lyonnais"},
-      @{@"name":@"Malaysian", @"code": @"malaysian"},
-      @{@"name":@"Meatballs", @"code": @"meatballs"},
-      @{@"name":@"Mediterranean", @"code": @"mediterranean"},
-      @{@"name":@"Mexican", @"code": @"mexican"},
-      @{@"name":@"Middle Eastern", @"code": @"mideastern"},
-      @{@"name":@"Milk Bars", @"code": @"milkbars"},
-      @{@"name":@"Modern Australian", @"code": @"modern_australian"},
-      @{@"name":@"Modern European", @"code": @"modern_european"},
-      @{@"name":@"Mongolian", @"code": @"mongolian"},
-      @{@"name":@"Moroccan", @"code": @"moroccan"},
-      @{@"name":@"New Zealand", @"code": @"newzealand"},
-      @{@"name":@"Night Food", @"code": @"nightfood"},
-      @{@"name":@"Norcinerie", @"code": @"norcinerie"},
-      @{@"name":@"Open Sandwiches", @"code": @"opensandwiches"},
-      @{@"name":@"Oriental", @"code": @"oriental"},
-      @{@"name":@"Pakistani", @"code": @"pakistani"},
-      @{@"name":@"Parent Cafes", @"code": @"eltern_cafes"},
-      @{@"name":@"Parma", @"code": @"parma"},
-      @{@"name":@"Persian/Iranian", @"code": @"persian"},
-      @{@"name":@"Peruvian", @"code": @"peruvian"},
-      @{@"name":@"Pita", @"code": @"pita"},
-      @{@"name":@"Pizza", @"code": @"pizza"},
-      @{@"name":@"Polish", @"code": @"polish"},
-      @{@"name":@"Portuguese", @"code": @"portuguese"},
-      @{@"name":@"Potatoes", @"code": @"potatoes"},
-      @{@"name":@"Poutineries", @"code": @"poutineries"},
-      @{@"name":@"Pub Food", @"code": @"pubfood"},
-      @{@"name":@"Rice", @"code": @"riceshop"},
-      @{@"name":@"Romanian", @"code": @"romanian"},
-      @{@"name":@"Rotisserie Chicken", @"code": @"rotisserie_chicken"},
-      @{@"name":@"Rumanian", @"code": @"rumanian"},
-      @{@"name":@"Russian", @"code": @"russian"},
-      @{@"name":@"Salad", @"code": @"salad"},
-      @{@"name":@"Sandwiches", @"code": @"sandwiches"},
-      @{@"name":@"Scandinavian", @"code": @"scandinavian"},
-      @{@"name":@"Scottish", @"code": @"scottish"},
-      @{@"name":@"Seafood", @"code": @"seafood"},
-      @{@"name":@"Serbo Croatian", @"code": @"serbocroatian"},
-      @{@"name":@"Signature Cuisine", @"code": @"signature_cuisine"},
-      @{@"name":@"Singaporean", @"code": @"singaporean"},
-      @{@"name":@"Slovakian", @"code": @"slovakian"},
-      @{@"name":@"Soul Food", @"code": @"soulfood"},
-      @{@"name":@"Soup", @"code": @"soup"},
-      @{@"name":@"Southern", @"code": @"southern"},
-      @{@"name":@"Spanish", @"code": @"spanish"},
-      @{@"name":@"Steakhouses", @"code": @"steak"},
-      @{@"name":@"Sushi Bars", @"code": @"sushi"},
-      @{@"name":@"Swabian", @"code": @"swabian"},
-      @{@"name":@"Swedish", @"code": @"swedish"},
-      @{@"name":@"Swiss Food", @"code": @"swissfood"},
-      @{@"name":@"Tabernas", @"code": @"tabernas"},
-      @{@"name":@"Taiwanese", @"code": @"taiwanese"},
-      @{@"name":@"Tapas Bars", @"code": @"tapas"},
-      @{@"name":@"Tapas/Small Plates", @"code": @"tapasmallplates"},
-      @{@"name":@"Tex-Mex", @"code": @"tex-mex"},
-      @{@"name":@"Thai", @"code": @"thai"},
-      @{@"name":@"Traditional Norwegian", @"code": @"norwegian"},
-      @{@"name":@"Traditional Swedish", @"code": @"traditional_swedish"},
-      @{@"name":@"Trattorie", @"code": @"trattorie"},
-      @{@"name":@"Turkish", @"code": @"turkish"},
-      @{@"name":@"Ukrainian", @"code": @"ukrainian"},
-      @{@"name":@"Uzbek", @"code": @"uzbek"},
-      @{@"name":@"Vegan", @"code": @"vegan"},
-      @{@"name":@"Vegetarian", @"code": @"vegetarian"},
-      @{@"name":@"Venison", @"code": @"venison"},
-      @{@"name":@"Vietnamese", @"code": @"vietnamese"},
-      @{@"name":@"Wok", @"code": @"wok"},
-      @{@"name":@"Wraps", @"code": @"wraps"},
-      @{@"name":@"Yugoslav", @"code": @"yugoslav"}
-    ];
+- (void)initFilters {
+    self.constraintsSectionTitles = @[@"Sort", @"Distance", @"Deals", @"Categories"];
+    
+    NSDictionary* constraints =
+    @{
+      @"Sort": @{
+              @"type": @"picker",
+              @"rulename": @"sort",
+              @"options": @[
+                      @{@"name": @"Best Match", @"code": @0},
+                      @{@"name": @"Distance", @"code": @1},
+                      @{@"name": @"Higest Rated", @"code": @2}
+                      ],
+              @"selected": @0,
+              @"expand": @NO
+              },
+      @"Distance": @{
+              @"type": @"picker",
+              @"rulename": @"radius_filter",
+              @"options": @[
+                      @{@"name": @"Best Match", @"code": @0},
+                      @{@"name": @"0.3 miles", @"code": @483},
+                      @{@"name": @"1 mile", @"code": @1609},
+                      @{@"name": @"5 miles", @"code": @8047},
+                      @{@"name": @"20 mile", @"code": @32187},
+                      ],
+              @"selected": @0,
+              @"expand": @NO
+              },
+      @"Deals": @{
+              @"type": @"switch",
+              @"rulename": @"deals_filter",
+              @"options": @[
+                      @{@"name": @"Only business with deals", @"code": @"1"}
+                      ]
+              },
+      @"Categories": @{
+              @"type": @"switch",
+              @"rulename": @"category_filter",
+              @"options": @[
+                      @{@"name": @"Cafes", @"code": @"cafes"},
+                      @{@"name": @"Hot Pot", @"code": @"hotpot"},
+                      @{@"name": @"Japanese", @"code": @"japanese"},
+                      @{@"name": @"Seafood", @"code": @"seafood"},
+                      @{@"name": @"Taiwanese", @"code": @"taiwanese"},
+                      @{@"name": @"Thai", @"code": @"thai"},
+                      @{@"name": @"Vegetarian", @"code": @"vegetarian"}
+                      ]
+              }
+      };
+    
+    self.constraints = (NSMutableDictionary *)CFBridgingRelease(CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)(constraints), kCFPropertyListMutableContainers));
+    
 }
 
 @end
