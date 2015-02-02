@@ -9,6 +9,7 @@
 #import "FilterViewController.h"
 #import "SwitchCell.h"
 #import "PickerCell.h"
+#import "SeeAllCell.h"
 
 @interface FilterViewController () <UITableViewDataSource, UITableViewDelegate, SwitchCellDelegate, UIPickerViewDelegate>
 
@@ -53,6 +54,7 @@
     
     [self.tableView registerNib:[UINib nibWithNibName:@"SwitchCell" bundle:nil] forCellReuseIdentifier:@"SwitchCell"];
     [self.tableView registerNib:[UINib nibWithNibName:@"PickerCell" bundle:nil] forCellReuseIdentifier:@"PickerCell"];
+    [self.tableView registerNib:[UINib nibWithNibName:@"SeeAllCell" bundle:nil] forCellReuseIdentifier:@"SeeAllCell"];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -71,18 +73,28 @@
         if (!expand) {
             return 1;
         }
+    } else if ([type isEqualToString:@"switch_group"]) {
+        BOOL expand = [self getToggleAtSection:section];
+        if (!expand) {
+            return 6;
+        }
     }
-    
     return options.count;
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     NSString *type = [self getTypeAtSection:indexPath.section];
     
-    if ([type isEqualToString:@"switch"]) {
+    if ([type hasPrefix:@"switch"]) {
+        BOOL expand = [self getToggleAtSection:indexPath.section];
+        if ([type isEqualToString:@"switch_group"] && !expand && indexPath.row == 5) {
+            SeeAllCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"SeeAllCell"];
+            return cell;
+        }
         NSDictionary *constraint = [self getOptionAtIndexPath:indexPath];
         NSString *sectionTitle = [self.constraintsSectionTitles objectAtIndex:indexPath.section];
         SwitchCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"SwitchCell"];
+
         cell.titleLabel.text = constraint[@"name"];
         cell.on = [(NSMutableSet*)[self.selectedConstraints objectForKey:sectionTitle] containsObject:constraint];
         cell.delegate = self;
@@ -109,6 +121,9 @@
     if ([type isEqualToString:@"picker"]) {
         [self toggleExpandAtSection:indexPath.section];
         [self setSelected:indexPath.row AtSection:indexPath.section];
+        [self.tableView reloadSections: [NSIndexSet indexSetWithIndex:indexPath.section]  withRowAnimation:UITableViewRowAnimationFade];
+    } else if ([type isEqualToString:@"switch_group"]) {
+        [self toggleExpandAtSection:indexPath.section];
         [self.tableView reloadSections: [NSIndexSet indexSetWithIndex:indexPath.section]  withRowAnimation:UITableViewRowAnimationFade];
     }
 }
@@ -210,7 +225,7 @@
     for (i = 0; i < self.constraintsSectionTitles.count; i++) {
         rulename = [self getRulenameAtSection: i];
         type = [self getTypeAtSection:i];
-        if ([type isEqualToString:@"switch"]) {
+        if ([type hasPrefix:@"switch"]) {
             sectionTitle = self.constraintsSectionTitles[i];
             if (self.selectedConstraints.count > 0 && self.selectedConstraints[sectionTitle]) {
                 NSMutableArray *names = [NSMutableArray array];
@@ -278,18 +293,26 @@
                       ]
               },
       @"Categories": @{
-              @"type": @"switch",
+              @"type": @"switch_group",
               @"rulename": @"category_filter",
               @"options": @[
+                      @{@"name" : @"Barbeque", @"code": @"bbq" },
                       @{@"name": @"Cafes", @"code": @"cafes"},
+                      @{@"name" : @"French", @"code": @"french" },
                       @{@"name": @"Hot Pot", @"code": @"hotpot"},
+                      @{@"name" : @"Italian", @"code": @"italian" },
                       @{@"name": @"Japanese", @"code": @"japanese"},
+                      @{@"name" : @"Mediterranean", @"code": @"mediterranean" },
+                      @{@"name" : @"Mexican", @"code": @"mexican" },
+                      @{@"name" : @"Pizza", @"code": @"pizza" },
                       @{@"name": @"Seafood", @"code": @"seafood"},
+                      @{@"name" : @"Soup", @"code": @"soup" },
                       @{@"name": @"Taiwanese", @"code": @"taiwanese"},
                       @{@"name": @"Thai", @"code": @"thai"},
                       @{@"name": @"Vegetarian", @"code": @"vegetarian"}
                       ]
-              }
+              },
+              @"expand": @NO
       };
     
     self.constraints = (NSMutableDictionary *)CFBridgingRelease(CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)(constraints), kCFPropertyListMutableContainers));
