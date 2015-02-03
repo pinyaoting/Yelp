@@ -18,6 +18,8 @@
 
 @interface MainViewController () <UITableViewDataSource, UITableViewDelegate, FilterViewControllerDelegate, UISearchBarDelegate>
 
+@property (strong, nonatomic) UIRefreshControl *refreshControl;
+
 @property (nonatomic, strong) YelpClient *client;
 @property (nonatomic, strong) NSMutableArray *businesses;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
@@ -74,6 +76,9 @@
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Filter" style:UIBarButtonItemStylePlain target:self action:@selector(onFilterButton)];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Map" style:UIBarButtonItemStylePlain target:self action:@selector(onMapButton)];
     
+    self.refreshControl = [[UIRefreshControl alloc] init];
+    [self.refreshControl addTarget:self action:@selector(onRefresh) forControlEvents:UIControlEventValueChanged];
+    [self.tableView insertSubview:self.refreshControl atIndex:0];
 }
 
 - (void)didReceiveMemoryWarning
@@ -158,6 +163,9 @@
     [self presentViewController:nvc animated:YES completion:nil];
 }
 
+- (void)onRefresh {
+    [self fetchBusinessesWithQueryIncremental:NO];
+}
 
 - (void)fetchBusinessesWithQueryIncremental:(BOOL)inc {
     [SVProgressHUD showWithStatus:@"Loading"];
@@ -173,8 +181,8 @@
         [self.filters setObject:@(self.offset) forKey:@"offset"];
     }
     
-    
     [self.client searchWithTerm:self.searchTerm params:self.filters success:^(AFHTTPRequestOperation *operation, id response) {
+        [self.refreshControl endRefreshing];
         NSArray *businessesDictionary = response[@"businesses"];
         NSArray *businesses = [Business businessesWithDictionaries:businessesDictionary];
         if (inc) {

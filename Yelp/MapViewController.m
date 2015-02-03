@@ -56,12 +56,20 @@
         annotationView = [[MKAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:identifier];
         annotationView.enabled = YES;
         annotationView.canShowCallout = YES;
-        annotationView.image = [UIImage imageNamed:@"location.png"];//here we use a nice image instead of the default pins
+        annotationView.image = [UIImage imageNamed:@"location.png"];
+        annotationView.rightCalloutAccessoryView = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
     } else {
         annotationView.annotation = annotation;
     }
     
     return annotationView;
+}
+
+- (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control {
+    Business *business = (Business*)view.annotation;
+    
+    NSDictionary *launchOptions = @{MKLaunchOptionsDirectionsModeKey : MKLaunchOptionsDirectionsModeDriving};
+    [business.mapItem openInMapsWithLaunchOptions:launchOptions];
 }
 
 #pragma mark - Private methods

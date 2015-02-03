@@ -38,8 +38,21 @@
     _business = business;
     
     [self.thumbImageView setImageWithURL:[NSURL URLWithString:business.imageUrl]];
+    
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:business.imageUrl] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:5.0f];
+    [self.thumbImageView setImageWithURLRequest:request placeholderImage:nil success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
+        [UIView transitionWithView:self.thumbImageView duration:1.0f options:UIViewAnimationOptionTransitionCrossDissolve animations:^{ self.thumbImageView.image = image;
+        } completion:nil];
+    } failure:nil];
+    
     self.nameLabel.text = self.business.name;
-    [self.ratingImageView setImageWithURL:[NSURL URLWithString:business.ratingImageUrl]];
+    
+    request = [NSURLRequest requestWithURL:[NSURL URLWithString:business.ratingImageUrl] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:5.0f];
+    [self.ratingImageView setImageWithURLRequest:request placeholderImage:nil success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
+        [UIView transitionWithView:self.ratingImageView duration:1.0f options:UIViewAnimationOptionTransitionCrossDissolve animations:^{ self.ratingImageView.image = image;
+        } completion:nil];
+    } failure:nil];
+    
     self.ratingLabel.text = [NSString stringWithFormat:@"%ld Reviews", self.business.numReviews];
     self.addressLabel.text = self.business.address;
     self.distanceLabel.text = [NSString stringWithFormat:@"%.2f mi", self.business.distance];

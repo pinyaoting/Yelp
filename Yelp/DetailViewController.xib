@@ -11,6 +11,7 @@
                 <outlet property="hoursLabel" destination="M7d-Sg-G7j" id="QEJ-OL-bg3"/>
                 <outlet property="mapView" destination="MQF-vX-SWm" id="pZI-1g-RsX"/>
                 <outlet property="nameLabel" destination="HEF-Vu-ACa" id="Fm8-RY-4ke"/>
+                <outlet property="ratingImageView" destination="eTc-J5-1Db" id="pKc-7B-LSx"/>
                 <outlet property="reviewLabel" destination="I5n-89-6rU" id="pcu-pS-jU8"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
@@ -38,52 +39,74 @@
                     <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                     <nil key="highlightedColor"/>
                 </label>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="American (New), Brasseries" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UED-j7-PqS">
-                    <rect key="frame" x="8" y="55" width="153" height="15"/>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="American (New), Brasseries" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UED-j7-PqS">
+                    <rect key="frame" x="8" y="57" width="153" height="15"/>
                     <fontDescription key="fontDescription" type="system" pointSize="12"/>
                     <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                     <nil key="highlightedColor"/>
                 </label>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Hours Today: 11:00AM - 8:30PM" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="M7d-Sg-G7j">
-                    <rect key="frame" x="8" y="72" width="182" height="15"/>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hours Today: 11:00AM - 8:30PM" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="M7d-Sg-G7j">
+                    <rect key="frame" x="8" y="74" width="182" height="15"/>
                     <fontDescription key="fontDescription" type="system" pointSize="12"/>
                     <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                     <nil key="highlightedColor"/>
                 </label>
-                <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="MQF-vX-SWm">
-                    <rect key="frame" x="8" y="95" width="304" height="200"/>
+                <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="MQF-vX-SWm">
+                    <rect key="frame" x="8" y="98" width="304" height="200"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="200" id="fHk-PX-GSr"/>
                     </constraints>
                 </mapView>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="1315 Reviews" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="I5n-89-6rU">
-                    <rect key="frame" x="8" y="34" width="78" height="15"/>
+                    <rect key="frame" x="100" y="34" width="78" height="15"/>
                     <fontDescription key="fontDescription" type="system" pointSize="12"/>
                     <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                     <nil key="highlightedColor"/>
                 </label>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="eTc-J5-1Db">
+                    <rect key="frame" x="8" y="34" width="84" height="17"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="17" id="2g3-pW-pPy"/>
+                        <constraint firstAttribute="width" constant="84" id="mIx-U8-Uoi"/>
+                    </constraints>
+                </imageView>
+                <imageView userInteractionEnabled="NO" alpha="0.30000000000000004" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="sashimi.png" translatesAutoresizingMaskIntoConstraints="NO" id="Ka1-BR-S3A">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="90"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="90" id="Lol-IC-fZW"/>
+                    </constraints>
+                </imageView>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
             <constraints>
-                <constraint firstItem="MQF-vX-SWm" firstAttribute="top" secondItem="M7d-Sg-G7j" secondAttribute="bottom" constant="8" id="3go-Jt-Sme"/>
-                <constraint firstItem="I5n-89-6rU" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="8" id="7DQ-Jd-jOu"/>
                 <constraint firstAttribute="trailing" secondItem="Dbb-no-3rw" secondAttribute="trailing" constant="8" id="EFr-nH-YGc"/>
                 <constraint firstItem="M7d-Sg-G7j" firstAttribute="top" secondItem="UED-j7-PqS" secondAttribute="bottom" constant="2" id="MO7-dm-KbB"/>
                 <constraint firstItem="UED-j7-PqS" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="8" id="QJl-le-mTQ"/>
+                <constraint firstItem="I5n-89-6rU" firstAttribute="leading" secondItem="eTc-J5-1Db" secondAttribute="trailing" constant="8" id="Uq4-Qk-tCk"/>
                 <constraint firstItem="uOd-Qf-CnZ" firstAttribute="top" secondItem="Dbb-no-3rw" secondAttribute="bottom" constant="2" id="V3c-MU-dqD"/>
                 <constraint firstItem="uOd-Qf-CnZ" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="I5n-89-6rU" secondAttribute="trailing" constant="8" id="WMX-qG-RW6"/>
                 <constraint firstItem="HEF-Vu-ACa" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="8" id="WoK-rx-1Yc"/>
                 <constraint firstAttribute="trailing" secondItem="uOd-Qf-CnZ" secondAttribute="trailing" constant="8" id="WzO-jh-BvV"/>
+                <constraint firstAttribute="trailing" secondItem="Ka1-BR-S3A" secondAttribute="trailing" id="bEG-kB-0WB"/>
+                <constraint firstItem="Ka1-BR-S3A" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="bQf-BF-K8Q"/>
+                <constraint firstItem="eTc-J5-1Db" firstAttribute="top" secondItem="HEF-Vu-ACa" secondAttribute="bottom" constant="5" id="dnM-q1-N8p"/>
                 <constraint firstItem="Dbb-no-3rw" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="20" id="f0k-WV-ugr"/>
+                <constraint firstItem="eTc-J5-1Db" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="8" id="g1w-cP-IO6"/>
+                <constraint firstItem="MQF-vX-SWm" firstAttribute="top" secondItem="Ka1-BR-S3A" secondAttribute="bottom" constant="8" id="gCK-8J-cyL"/>
                 <constraint firstAttribute="trailing" secondItem="MQF-vX-SWm" secondAttribute="trailing" constant="8" id="k3j-J3-W12"/>
+                <constraint firstItem="UED-j7-PqS" firstAttribute="top" secondItem="I5n-89-6rU" secondAttribute="bottom" constant="8" id="lK2-42-uvl"/>
                 <constraint firstItem="M7d-Sg-G7j" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="8" id="mGW-AH-e06"/>
                 <constraint firstItem="HEF-Vu-ACa" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="8" id="n4y-OD-bLf"/>
                 <constraint firstItem="I5n-89-6rU" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="34" id="oSJ-lc-lPV"/>
                 <constraint firstItem="MQF-vX-SWm" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="8" id="pbf-cP-m8z"/>
+                <constraint firstItem="Ka1-BR-S3A" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="upt-hl-y4e"/>
             </constraints>
             <point key="canvasLocation" x="266" y="284"/>
         </view>
     </objects>
+    <resources>
+        <image name="sashimi.png" width="319" height="90"/>
+    </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

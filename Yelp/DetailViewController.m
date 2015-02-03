@@ -26,6 +26,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
+    [self loadAsyncLabels];
+    
     // init location
     CLLocationCoordinate2D zoomLocation;
     zoomLocation.latitude = self.business.coordinate.latitude;
@@ -34,6 +36,7 @@
     [_mapView setRegion:viewRegion animated:YES];
     self.mapView.delegate = self;
     [self plotPositions];
+
 }
 
 - (void)didReceiveMemoryWarning {
@@ -50,11 +53,18 @@
 
 }
 
+- (void)loadAsyncLabels {
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:self.business.ratingImageUrl] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:5.0f];
+    [self.ratingImageView setImageWithURLRequest:request placeholderImage:nil success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
+        [UIView transitionWithView:self.ratingImageView duration:1.0f options:UIViewAnimationOptionTransitionCrossDissolve animations:^{ self.ratingImageView.image = image;
+        } completion:nil];
+    } failure:nil];
+}
+
 - (void)setBusiness:(Business *)business {
     _business = business;
     
     self.nameLabel.text = self.business.name;
-    [self.ratingImageView setImageWithURL:[NSURL URLWithString:self.business.ratingImageUrl]];
     self.reviewLabel.text = [NSString stringWithFormat:@"%ld Reviews", self.business.numReviews];
     self.distanceLabel.text = [NSString stringWithFormat:@"%.2f mi", self.business.distance];
     self.categoryLabel.text = self.business.categories;
@@ -69,12 +79,20 @@
         annotationView = [[MKAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:identifier];
         annotationView.enabled = YES;
         annotationView.canShowCallout = YES;
-        annotationView.image = [UIImage imageNamed:@"location.png"];//here we use a nice image instead of the default pins
+        annotationView.image = [UIImage imageNamed:@"location.png"];
+        annotationView.rightCalloutAccessoryView = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
     } else {
         annotationView.annotation = annotation;
     }
     
     return annotationView;
+}
+
+- (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control {
+    Business *business = (Business*)view.annotation;
+    
+    NSDictionary *launchOptions = @{MKLaunchOptionsDirectionsModeKey : MKLaunchOptionsDirectionsModeDriving};
+    [business.mapItem openInMapsWithLaunchOptions:launchOptions];
 }
 
 @end
