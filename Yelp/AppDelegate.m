@@ -9,13 +9,19 @@
 #import "AppDelegate.h"
 #import "MainViewController.h"
 
+
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    
+
     self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[[MainViewController alloc] init]];
+
+    // change status bar color
+    UIView *view=[[UIView alloc] initWithFrame:CGRectMake(0, 0,320, 20)];
+    view.backgroundColor=[UIColor clearColor];
+    [self.window.rootViewController.view addSubview:view];
     
     [[UINavigationBar appearance] setBackgroundImage:[UIImage imageNamed:@"red_bg.png"] forBarMetrics:UIBarMetricsDefault];
     [[UINavigationBar appearance] setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]}];

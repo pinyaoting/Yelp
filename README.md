@@ -31,5 +31,12 @@ Time spent: `17`
 
 ### Walkthrough
 
-![Video Walkthrough](...)
+![Video Walkthrough](yelp.gif)
 
+
+Credits
+---------
+* [Yelp API](http://www.yelp.com/developers/documentation)
+* [BDBOAuth1Manager](https://github.com/bdbergeron/BDBOAuth1Manager)
+* [AFNetworking](https://github.com/AFNetworking/AFNetworking)
+* [SVProgressHUD](https://github.com/TransitApp/SVProgressHUD)

@@ -14,7 +14,7 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Best Match" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="L2D-LE-mof">
-                        <rect key="frame" x="8" y="8" width="88" height="27"/>
+                        <rect key="frame" x="15" y="8" width="88" height="27"/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                         <nil key="highlightedColor"/>
@@ -29,7 +29,7 @@
                 <constraints>
                     <constraint firstAttribute="trailing" secondItem="QZ1-17-ftO" secondAttribute="trailing" constant="15" id="CAt-Rq-rTu"/>
                     <constraint firstAttribute="centerY" secondItem="QZ1-17-ftO" secondAttribute="centerY" id="Pdd-Hj-vpX"/>
-                    <constraint firstItem="L2D-LE-mof" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="8" id="kyf-ut-CEq"/>
+                    <constraint firstItem="L2D-LE-mof" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="15" id="kyf-ut-CEq"/>
                     <constraint firstAttribute="bottom" secondItem="L2D-LE-mof" secondAttribute="bottom" constant="8" id="laa-GY-RSc"/>
                     <constraint firstItem="L2D-LE-mof" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="8" id="rkr-Du-1so"/>
                 </constraints>

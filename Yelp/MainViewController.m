@@ -156,7 +156,6 @@
 - (void)onMapButton {
     MapViewController *vc = [[MapViewController alloc] init];
     vc.businesses = self.businesses;
-    NSLog(@"number of business %ld", self.businesses.count);
     
     UINavigationController *nvc = [[UINavigationController alloc] initWithRootViewController:vc];
     

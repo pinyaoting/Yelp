@@ -20,7 +20,7 @@
                         </connections>
                     </switch>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rnh-lG-KJ2">
-                        <rect key="frame" x="8" y="13" width="42" height="21"/>
+                        <rect key="frame" x="15" y="13" width="42" height="21"/>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                         <nil key="highlightedColor"/>
@@ -30,7 +30,7 @@
                     <constraint firstAttribute="centerY" secondItem="Rnh-lG-KJ2" secondAttribute="centerY" id="D3M-fk-zFT"/>
                     <constraint firstItem="28U-fE-An6" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="8" id="FhQ-pa-L5G"/>
                     <constraint firstAttribute="bottom" secondItem="28U-fE-An6" secondAttribute="bottom" constant="8" id="ePd-kq-6GP"/>
-                    <constraint firstItem="Rnh-lG-KJ2" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="8" id="qjU-jp-QlY"/>
+                    <constraint firstItem="Rnh-lG-KJ2" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="15" id="qjU-jp-QlY"/>
                     <constraint firstAttribute="trailing" secondItem="28U-fE-An6" secondAttribute="trailing" constant="8" id="vKF-CI-8vq"/>
                 </constraints>
             </tableViewCellContentView>
