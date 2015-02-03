@@ -10,6 +10,7 @@
 #import "SwitchCell.h"
 #import "PickerCell.h"
 #import "SeeAllCell.h"
+#import "Constants.h"
 
 @interface FilterViewController () <UITableViewDataSource, UITableViewDelegate, SwitchCellDelegate, UIPickerViewDelegate>
 
@@ -242,7 +243,6 @@
         targetOption = options[selected];
         [filters setObject:targetOption[@"code"] forKey:rulename];
     }
-
     
     return filters;
 }
@@ -259,7 +259,7 @@
 - (void)initFilters {
     self.constraintsSectionTitles = @[@"Sort", @"Distance", @"Deals", @"Categories"];
     
-    NSDictionary* constraints =
+    NSDictionary* filters =
     @{
       @"Sort": @{
               @"type": @"picker",
@@ -315,7 +315,7 @@
               @"expand": @NO
       };
     
-    self.constraints = (NSMutableDictionary *)CFBridgingRelease(CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)(constraints), kCFPropertyListMutableContainers));
+    self.constraints = (NSMutableDictionary *)CFBridgingRelease(CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)(filters), kCFPropertyListMutableContainers));
     
 }
 

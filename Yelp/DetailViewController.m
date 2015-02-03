@@ -1,35 +1,38 @@
 //
-//  MapViewController.m
+//  DetailViewController.m
 //  Yelp
 //
 //  Created by Pythis Ting on 2/2/15.
 //  Copyright (c) 2015 codepath. All rights reserved.
 //
 
-#import "MapViewController.h"
-#import "Business.h"
+#import "DetailViewController.h"
+#import "UIImageView+AFNetworking.h"
 #import "Constants.h"
 
-@interface MapViewController () <MKMapViewDelegate>
+@interface DetailViewController () <MKMapViewDelegate>
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *distanceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *reviewLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *ratingImageView;
+@property (weak, nonatomic) IBOutlet UILabel *categoryLabel;
+@property (weak, nonatomic) IBOutlet UILabel *hoursLabel;
+@property (weak, nonatomic) IBOutlet MKMapView *mapView;
 
 @end
 
-@implementation MapViewController
+@implementation DetailViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    // init navigation bar
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"List" style:UIBarButtonItemStylePlain target:self action:@selector(onListButton)];
-    
+
     // init location
     CLLocationCoordinate2D zoomLocation;
-    zoomLocation.latitude = 37.774866;
-    zoomLocation.longitude= -122.394556;
+    zoomLocation.latitude = self.business.coordinate.latitude;
+    zoomLocation.longitude= self.business.coordinate.longitude;
     MKCoordinateRegion viewRegion = MKCoordinateRegionMakeWithDistance(zoomLocation, 0.5 * METERS_PER_MILE, 0.5 * METERS_PER_MILE);
     [_mapView setRegion:viewRegion animated:YES];
     self.mapView.delegate = self;
-    
     [self plotPositions];
 }
 
@@ -38,19 +41,29 @@
     // Dispose of any resources that can be recreated.
 }
 
+
 - (void)plotPositions {
     for (id<MKAnnotation> annotation in self.mapView.annotations) {
         [self.mapView removeAnnotation:annotation];
     }
-    for (Business *business in self.businesses) {
-        [self.mapView addAnnotation:business];
-    }
+    [self.mapView addAnnotation:self.business];
+
 }
 
-#pragma mark - Map view methods
+- (void)setBusiness:(Business *)business {
+    _business = business;
+    
+    self.nameLabel.text = self.business.name;
+    [self.ratingImageView setImageWithURL:[NSURL URLWithString:self.business.ratingImageUrl]];
+    self.reviewLabel.text = [NSString stringWithFormat:@"%ld Reviews", self.business.numReviews];
+    self.distanceLabel.text = [NSString stringWithFormat:@"%.2f mi", self.business.distance];
+    self.categoryLabel.text = self.business.categories;
+
+}
+
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation {
     static NSString *identifier = @"Business";
-        
+    
     MKAnnotationView *annotationView = (MKAnnotationView *) [self.mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
     if (annotationView == nil) {
         annotationView = [[MKAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:identifier];
@@ -62,11 +75,6 @@
     }
     
     return annotationView;
-}
-
-#pragma mark - Private methods
-- (void)onListButton {
-    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 @end

@@ -8,10 +8,10 @@
 
 #import "Business.h"
 #import <AddressBook/AddressBook.h>
+#import "Constants.h"
 
 @implementation Business
 
-#define MILES_PER_METER 0.000621371
 
 - (id)initWithDictionary:(NSDictionary *)dictionary {
     self = [super init];
@@ -47,8 +47,13 @@
         self.numReviews = [dictionary[@"review_count"] integerValue];
         self.ratingImageUrl = dictionary[@"rating_img_url"];
         self.distance = [dictionary[@"distance"] integerValue] * MILES_PER_METER;
+        
         NSDictionary *coordinate = [dictionary valueForKeyPath:@"location.coordinate"];
-        self.coordinate = CLLocationCoordinate2DMake([coordinate[@"latitude"] doubleValue], [coordinate[@"longtitude"] doubleValue]);
+        CLLocationCoordinate2D theCoordinate;
+        theCoordinate.latitude = [coordinate[@"latitude"] doubleValue];
+        theCoordinate.longitude = [coordinate[@"longitude"] doubleValue];
+        
+        self.theCoordinate = theCoordinate;
     }
     
     return self;
@@ -71,6 +76,10 @@
 
 - (NSString *)subtitle {
     return self.address;
+}
+
+- (CLLocationCoordinate2D)coordinate {
+    return self.theCoordinate;
 }
 
 - (MKMapItem *)mapItem {

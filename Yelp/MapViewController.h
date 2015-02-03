@@ -13,4 +13,6 @@
 
 @property (weak, nonatomic) IBOutlet MKMapView *mapView;
 
+@property (nonatomic, strong) NSMutableArray *businesses;
+
 @end

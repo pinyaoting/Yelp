@@ -7,16 +7,14 @@
 //
 
 #import "MainViewController.h"
+#import "FilterViewController.h"
+#import "MapViewController.h"
+#import "DetailViewController.h"
+#import "SVProgressHUD.h"
 #import "YelpClient.h"
 #import "Business.h"
 #import "BusinessCell.h"
-#import "FilterViewController.h"
-#import "MapViewController.h"
-
-NSString * const kYelpConsumerKey = @"vxKwwcR_NMQ7WaEiQBK_CA";
-NSString * const kYelpConsumerSecret = @"33QCvh5bIF5jIHR5klQr7RtBDhQ";
-NSString * const kYelpToken = @"uRcRswHFYa1VkDrGV6LAW2F8clGh5JHV";
-NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
+#import "Constants.h"
 
 @interface MainViewController () <UITableViewDataSource, UITableViewDelegate, FilterViewControllerDelegate, UISearchBarDelegate>
 
@@ -42,7 +40,7 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // You can register for Yelp API keys here: http://www.yelp.com/developers/manage_api_keys
-        self.client = [[YelpClient alloc] initWithConsumerKey:kYelpConsumerKey consumerSecret:kYelpConsumerSecret accessToken:kYelpToken accessSecret:kYelpTokenSecret];
+        self.client = [[YelpClient alloc] initWithConsumerKey:K_YELP_CCONSUMER_KEY consumerSecret:K_YELP_CONSUMER_SECRET accessToken:K_YELP_TOKEN accessSecret:K_YELP_TOKEN_SECRET];
         
         self.searchTerm = @"Restaurants";
         self.filters = nil;
@@ -56,6 +54,8 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    [SVProgressHUD showWithStatus:@"Loading"];
     
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
@@ -119,16 +119,21 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
     }
 }
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    DetailViewController *vc = [[DetailViewController alloc] init];
+    
+    vc.business = self.businesses[indexPath.row];
+
+    [self.navigationController pushViewController:vc animated:YES];
+}
+
 
 #pragma mark - Filter delegate methods
 
 -(void)filterViewController:(FilterViewController *)filterViewController didChangeFilters:(NSDictionary *)filters {
-
     self.filters = [NSMutableDictionary dictionaryWithDictionary:filters];
     [self fetchBusinessesWithQueryIncremental:NO];
-    
-    // fire a new network event.
-    NSLog(@"fire new network event: %@", filters);
 }
 
 
@@ -145,6 +150,8 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
 
 - (void)onMapButton {
     MapViewController *vc = [[MapViewController alloc] init];
+    vc.businesses = self.businesses;
+    NSLog(@"number of business %ld", self.businesses.count);
     
     UINavigationController *nvc = [[UINavigationController alloc] initWithRootViewController:vc];
     
@@ -153,6 +160,7 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
 
 
 - (void)fetchBusinessesWithQueryIncremental:(BOOL)inc {
+    [SVProgressHUD showWithStatus:@"Loading"];
     if (inc) {
         if (!self.offset) {
             self.offset = self.businesses.count;
@@ -176,7 +184,9 @@ NSString * const kYelpTokenSecret = @"mqtKIxMIR4iBtBPZCmCLEb-Dz3Y";
         }
         [self.tableView reloadData];
         self.shouldPause = NO;
+        [SVProgressHUD dismiss];
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        [SVProgressHUD dismiss];
         NSLog(@"error: %@", [error description]);
     }];
 }
