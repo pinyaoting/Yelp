@@ -27,7 +27,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    [self loadAsyncLabels];
+    [self loadLabels];
     self.directionButton.layer.cornerRadius = 15;
     self.directionButton.layer.borderWidth = 1;
     
@@ -60,22 +60,17 @@
 
 }
 
-- (void)loadAsyncLabels {
+- (void)loadLabels {
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:self.business.ratingImageUrl] cachePolicy:NSURLRequestReturnCacheDataElseLoad timeoutInterval:5.0f];
     [self.ratingImageView setImageWithURLRequest:request placeholderImage:nil success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
         [UIView transitionWithView:self.ratingImageView duration:1.0f options:UIViewAnimationOptionTransitionCrossDissolve animations:^{ self.ratingImageView.image = image;
         } completion:nil];
     } failure:nil];
-}
-
-- (void)setBusiness:(Business *)business {
-    _business = business;
     
     self.nameLabel.text = self.business.name;
     self.reviewLabel.text = [NSString stringWithFormat:@"%ld Reviews", self.business.numReviews];
     self.distanceLabel.text = [NSString stringWithFormat:@"%.2f mi", self.business.distance];
     self.categoryLabel.text = self.business.categories;
-
 }
 
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation {
