@@ -18,6 +18,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *categoryLabel;
 @property (weak, nonatomic) IBOutlet UILabel *hoursLabel;
 @property (weak, nonatomic) IBOutlet MKMapView *mapView;
+@property (weak, nonatomic) IBOutlet UIButton *directionButton;
 
 @end
 
@@ -27,6 +28,8 @@
     [super viewDidLoad];
 
     [self loadAsyncLabels];
+    self.directionButton.layer.cornerRadius = 15;
+    self.directionButton.layer.borderWidth = 1;
     
     // init location
     CLLocationCoordinate2D zoomLocation;
@@ -44,6 +47,10 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (IBAction)onTap:(id)sender {
+    NSDictionary *launchOptions = @{MKLaunchOptionsDirectionsModeKey : MKLaunchOptionsDirectionsModeDriving};
+    [self.business.mapItem openInMapsWithLaunchOptions:launchOptions];
+}
 
 - (void)plotPositions {
     for (id<MKAnnotation> annotation in self.mapView.annotations) {

@@ -7,6 +7,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="DetailViewController">
             <connections>
                 <outlet property="categoryLabel" destination="UED-j7-PqS" id="gNW-8z-PoC"/>
+                <outlet property="directionButton" destination="YMB-1a-oEJ" id="Sij-0o-BDa"/>
                 <outlet property="distanceLabel" destination="Dbb-no-3rw" id="GTL-7b-T8P"/>
                 <outlet property="hoursLabel" destination="M7d-Sg-G7j" id="QEJ-OL-bg3"/>
                 <outlet property="mapView" destination="MQF-vX-SWm" id="pZI-1g-RsX"/>
@@ -76,11 +77,27 @@
                         <constraint firstAttribute="height" constant="90" id="Lol-IC-fZW"/>
                     </constraints>
                 </imageView>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YMB-1a-oEJ">
+                    <rect key="frame" x="8" y="306" width="304" height="30"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="30" id="bdO-6T-zic"/>
+                    </constraints>
+                    <state key="normal" title="Get Direction">
+                        <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                    <connections>
+                        <action selector="onTap:" destination="-1" eventType="touchUpInside" id="JH4-wn-DZr"/>
+                    </connections>
+                </button>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
             <constraints>
+                <constraint firstItem="YMB-1a-oEJ" firstAttribute="top" secondItem="MQF-vX-SWm" secondAttribute="bottom" constant="8" id="2Zd-DV-HUB"/>
+                <constraint firstItem="YMB-1a-oEJ" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="8" id="CBn-WL-s1N"/>
                 <constraint firstAttribute="trailing" secondItem="Dbb-no-3rw" secondAttribute="trailing" constant="8" id="EFr-nH-YGc"/>
                 <constraint firstItem="M7d-Sg-G7j" firstAttribute="top" secondItem="UED-j7-PqS" secondAttribute="bottom" constant="2" id="MO7-dm-KbB"/>
+                <constraint firstAttribute="trailing" secondItem="YMB-1a-oEJ" secondAttribute="trailing" constant="8" id="Pn8-So-8u7"/>
                 <constraint firstItem="UED-j7-PqS" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="8" id="QJl-le-mTQ"/>
                 <constraint firstItem="I5n-89-6rU" firstAttribute="leading" secondItem="eTc-J5-1Db" secondAttribute="trailing" constant="8" id="Uq4-Qk-tCk"/>
                 <constraint firstItem="uOd-Qf-CnZ" firstAttribute="top" secondItem="Dbb-no-3rw" secondAttribute="bottom" constant="2" id="V3c-MU-dqD"/>
