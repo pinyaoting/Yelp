@@ -7,6 +7,7 @@
 //
 
 #import "MapViewController.h"
+#import "DetailViewController.h"
 #import "Business.h"
 #import "Constants.h"
 
@@ -68,8 +69,11 @@
 - (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control {
     Business *business = (Business*)view.annotation;
     
-    NSDictionary *launchOptions = @{MKLaunchOptionsDirectionsModeKey : MKLaunchOptionsDirectionsModeDriving};
-    [business.mapItem openInMapsWithLaunchOptions:launchOptions];
+    DetailViewController *vc = [[DetailViewController alloc] init];
+    
+    vc.business = business;
+    
+    [self.navigationController pushViewController:vc animated:YES];
 }
 
 #pragma mark - Private methods
