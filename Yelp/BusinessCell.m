@@ -26,6 +26,7 @@
     // Initialization code
     self.nameLabel.preferredMaxLayoutWidth = self.nameLabel.frame.size.width;
     self.thumbImageView.layer.cornerRadius = 3;
+    self.thumbImageView.clipsToBounds = YES;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
